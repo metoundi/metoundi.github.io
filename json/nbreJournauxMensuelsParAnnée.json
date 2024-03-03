@@ -1,0 +1,50 @@
+{
+  "width": 600,
+  "height": 400,
+  "title": "Le nombre de journaux mensuel par annee",
+  "data": {
+    "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv"
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "annee"},
+    "y": {
+      "aggregate": "count",
+      "field": "fichier",
+      "title": "nombre de Journaux"
+    },
+    "color": {"field": "mois"},
+    "tooltip": [
+      {"field": "mois"},
+      {
+        "aggregate": "count",
+        "field": "nomJournal",
+        "title": "Nombre du Journaux"
+      }
+    ]
+  },
+  "selection": {
+    "Nom du journal": {
+      "type": "single",
+      "fields": ["nomJournal"],
+      "bind": {
+        "input": "select",
+        "options": [
+          "Tous les journaux",
+          "L'Avenir Du Luxembourg",
+          "La Libre Belgique",
+          "L'Indépendance Belge",
+          "Journal De Bruxelles",
+          "Journal De Charleroi",
+          "La Meuse",
+          "Le XXe Siècle",
+          "Le Peuple",
+          "Le soir"
+        ],
+        "name": "Nom du Journal"
+      }
+    }
+  },
+  "transform": [{"filter": {"selection": "Nom du journal"}}],
+  "config": {}
+}

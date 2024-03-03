@@ -1,0 +1,52 @@
+{
+  "width": 300,
+  "height": 200,
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv"
+  },
+  "transform": [{"filter": {"selection": "Nom du journal"}}],
+  "mark": "bar",
+  "encoding": {
+    "facet": {"field": "mois", "type": "ordinal", "columns": 4},
+    "y": {
+      "aggregate": "count",
+      "field": "nomJournal",
+      "title": "Nombre de journaux"
+    },
+    "x": {"field": "nomJournal", "title": "Nom des journaux"},
+    "color": {"field": "decennie", "title": "Décennie"},
+    "tooltip": [
+      {"field": "nomJournal", "title": "Journal"},
+      {
+        "aggregate": "count",
+        "field": "nomJournal",
+        "title": "Nombre de journaux"
+      },
+      {"field": "annee", "title": "Année"}
+    ]
+  },
+  "selection": {
+    "Nom du journal": {
+      "type": "single",
+      "fields": ["nomJournal"],
+      "bind": {
+        "input": "select",
+        "options": [
+          "",
+          "L'Avenir Du Luxembourg",
+          "La Libre Belgique",
+          "L'Indépendance Belge",
+          "Journal De Bruxelles",
+          "Journal De Charleroi",
+          "La Meuse",
+          "Le XXe Siècle",
+          "Le Peuple",
+          "Le soir"
+        ],
+        "name": "Nom du journal"
+      }
+    }
+  },
+  "config": {}
+}

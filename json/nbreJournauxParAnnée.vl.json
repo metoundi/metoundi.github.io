@@ -1,0 +1,26 @@
+{
+  "width": 600,
+  "height": 400,
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Le nombre de journaux par annee",
+  "data": {
+    "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv"
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "annee"},
+    "y": {
+      "aggregate": "count",
+      "field": "fichier",
+      "title": "nombre de Journaux"
+    },
+    "tooltip": [
+      {
+        "aggregate": "count",
+        "field": "nomJournal",
+        "title": "Nombre du Journaux"
+      }
+    ]
+  },
+  "config": {}
+}

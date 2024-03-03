@@ -1,0 +1,58 @@
+{
+  "width": 600,
+  "height": 400,
+  "title": "Nombre d'occurrences d'une annee dans une decennie",
+  "data": {
+    "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv"
+  },
+  "mark": "rect",
+  "encoding": {
+    "x": {
+      "field": "decennie",
+      "type": "ordinal",
+      "axis": {"labelAngle": 0, "title": "Decennie"}
+    },
+    "y": {
+      "aggregate": "count",
+      "field": "annee",
+      "type": "quantitative",
+      "axis": {"title": "Nombre d'occurrences"}
+    },
+    "color": {
+      "field": "annee",
+      "type": "ordinal",
+      "scale": {"scheme": "category10"},
+      "legend": {"title": "Annee"},
+      "sort": "descending"
+    },
+    "tooltip": [
+      {"field": "nomJournalAbbr", "title": "Journal"},
+      {"field": "annee", "title": "Année"},
+      {"aggregate": "count", "field": "annee", "title": "Occurence "}
+    ]
+  },
+  "selection": {
+    "Nom du journal": {
+      "type": "single",
+      "fields": ["nomJournal"],
+      "bind": {
+        "input": "select",
+        "options": [
+          "",
+          "L'Avenir Du Luxembourg",
+          "La Libre Belgique",
+          "L'Indépendance Belge",
+          "Journal De Bruxelles",
+          "Journal De Charleroi",
+          "La Meuse",
+          "Le XXe Siècle",
+          "Le Peuple",
+          "Le soir"
+        ],
+        "name": "Nom du journal"
+      }
+    }
+  },
+  "transform": [{"filter": {"selection": "Nom du journal"}}],
+  "config": {}
+}
