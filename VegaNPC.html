@@ -13,6 +13,7 @@
 <body>
     <header>
          <h1 style="text-align:center">Découvrons et explorons l'usage novateur de Vega dans le projet NumaPress CAMILLE (NPC) pour analyser les archives de presse belge."</h1>       
+         <script src="https://cdn.jsdelivr.net/npm/vega-lite@5/dist/vega-lite.min.js"></script>
     </header>
     
     <section>
@@ -27,9 +28,18 @@
                
 	            </div>
 	            <div class="exp-desc">
-	                <p>		
-				
-			</p>
+	                 <div id="vis"></div>
+			  <script>
+			    const vegaLite = require('vega-lite');
+			
+			    const spec = require('./journalisme.json');
+			
+			    vegaLite.render(spec, "vis", {
+			      renderer: "svg"
+			    }).then(function(view) {
+			      // Vous pouvez ajouter du code JavaScript ici pour interagir avec votre graphique
+			    });
+			  </script>
 	            </div>
             </div>
 	    <div class="exp">
