@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Graphique Vega interactif des journaux par année</title>
+    <title>Graphique Vega interactif</title>
     <script src="https://d3js.org/"></script>
     <script src="https://myvega.com/"></script>
     <script src="https://vega.github.io/vega-lite/"></script>
@@ -15,9 +15,11 @@
 
         const div = document.getElementById('graphique');
 
-        const spec = vega.parse('imagesV/nbreJournauxMensuelsParAnnée.json');
+        const spec = vega.parse("/json/nbreJournauxParAnnée.vl.json");
 
         vega.view(div, spec).run();
     </script>
 </body>
 </html>
+
+
