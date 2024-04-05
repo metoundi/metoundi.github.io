@@ -1,25 +1,41 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Graphique Vega interactif</title>
-    <script src="https://d3js.org/"></script>
-    <script src="https://myvega.com/"></script>
-    <script src="https://vega.github.io/vega-lite/"></script>
+  <title>Mon graphique Vega-Lite</title>
+  <script src="https://vega.github.io/vega/vega.min.js"></script>
+  <script src="https://vega.github.io/vega-lite/vega-lite.min.js"></script>
+  <script src="https://vega.github.io/vega-embed/vega-embed.min.js"></script>
 </head>
 <body>
-    <div id="graphique"></div>
-    <script>
-        const vega = require('vega');
-        const { vegaLite } = require('vega-lite');
-
-        const div = document.getElementById('graphique Année');
-
-        const spec = vega.parse("/json/nbreJournauxParAnnée.vl.json");
-
-        vega.view(div, spec).run();
-    </script>
+  <div id="vis"></div>
+  <script type="application/json" id="spec">
+  {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "Un graphique à barres simple.",
+    "data": {
+      "values": [
+        {"catégorie": "A", "valeur": 28},
+        {"catégorie": "B", "valeur": 55},
+        {"catégorie": "C", "valeur": 43},
+        {"catégorie": "D", "valeur": 91},
+        {"catégorie": "E", "valeur": 81},
+        {"catégorie": "F", "valeur": 53},
+        {"catégorie": "G", "valeur": 19},
+        {"catégorie": "H", "valeur": 87}
+      ]
+    },
+    "mark": "bar",
+    "encoding": {
+      "x": {"field": "catégorie", "type": "nominal"},
+      "y": {"field": "valeur", "type": "quantitative"}
+    }
+  }
+  </script>
+  <script type="text/javascript">
+    var spec = JSON.parse(document.getElementById('spec').textContent);
+    vegaEmbed('#vis', spec).then(function(result) {
+      // Le graphique est maintenant affiché dans le conteneur #vis
+    }).catch(console.error);
+  </script>
 </body>
 </html>
-
-
