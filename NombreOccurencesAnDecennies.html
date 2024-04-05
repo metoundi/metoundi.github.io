@@ -1,1 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mon graphique Vega-Lite</title>
+  <script src="https://unpkg.com/vega@5.20.2/build/vega.min.js"></script>
+<script src="https://unpkg.com/vega-lite@5.0.0/build/vega-lite.min.js"></script>
+<script src="https://unpkg.com/vega-embed@6.17.0/build/vega-embed.min.js"></script>
+
+</head>
+<body>
+  <div id="vis"></div>
+  <script type='application/json' id="spec">
+   {
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
+  "width": 600,
+  "height": 400,
+  "title": {
+    "text": "Nombre d'occurrences d'une annee dans une decennie",
+    "frame": "group"
+  },
+  "style": "cell",
+  "data": [
+    {"name": "Nom_du_journal_store"},
+    {
+      "name": "source_0",
+      "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
+      "format": {"type": "csv"},
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "!length(data(\"Nom_du_journal_store\")) || vlSelectionTest(\"Nom_du_journal_store\", datum)"
+        }
+      ]
+    },
+    {
+      "name": "data_0",
+      "source": "source_0",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["decennie", "annee", "nomJournalAbbr"],
+          "ops": ["count"],
+          "fields": [null],
+          "as": ["__count"]
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "name": "unit",
+      "value": {},
+      "on": [
+        {"events": "pointermove", "update": "isTuple(group()) ? group() : unit"}
+      ]
+    },
+    {
+      "name": "Nom_du_journal_nomJournal",
+      "value": null,
+      "bind": {
+        "input": "select",
+        "options": [
+          "",
+          "L'Avenir Du Luxembourg",
+          "La Libre Belgique",
+          "L'Indépendance Belge",
+          "Journal De Bruxelles",
+          "Journal De Charleroi",
+          "La Meuse",
+          "Le XXe Siècle",
+          "Le Peuple",
+          "Le soir"
+        ],
+        "name": "Nom du journal"
+      }
+    },
+    {
+      "name": "Nom_du_journal",
+      "update": "vlSelectionResolve(\"Nom_du_journal_store\", \"union\", true, true)"
+    },
+    {
+      "name": "Nom_du_journal_tuple",
+      "update": "Nom_du_journal_nomJournal !== null ? {fields: Nom_du_journal_tuple_fields, values: [Nom_du_journal_nomJournal]} : null"
+    },
+    {
+      "name": "Nom_du_journal_tuple_fields",
+      "value": [{"type": "E", "field": "nomJournal"}]
+    },
+    {
+      "name": "Nom_du_journal_modify",
+      "on": [
+        {
+          "events": {"signal": "Nom_du_journal_tuple"},
+          "update": "modify(\"Nom_du_journal_store\", Nom_du_journal_tuple, true)"
+        }
+      ]
+    }
+  ],
+  "marks": [
+    {
+      "name": "marks",
+      "type": "rect",
+      "style": ["rect"],
+      "interactive": true,
+      "from": {"data": "data_0"},
+      "encode": {
+        "update": {
+          "fill": {"scale": "color", "field": "annee"},
+          "tooltip": {
+            "signal": "{\"Journal\": isValid(datum[\"nomJournalAbbr\"]) ? datum[\"nomJournalAbbr\"] : \"\"+datum[\"nomJournalAbbr\"], \"Année\": isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"], \"Occurence \": format(datum[\"__count\"], \"\")}"
+          },
+          "description": {
+            "signal": "\"decennie: \" + (isValid(datum[\"decennie\"]) ? datum[\"decennie\"] : \"\"+datum[\"decennie\"]) + \"; Count of Records: \" + (format(datum[\"__count\"], \"\")) + \"; annee: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]) + \"; Journal: \" + (isValid(datum[\"nomJournalAbbr\"]) ? datum[\"nomJournalAbbr\"] : \"\"+datum[\"nomJournalAbbr\"]) + \"; Année: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]) + \"; Occurence : \" + (format(datum[\"__count\"], \"\"))"
+          },
+          "x": {"scale": "x", "field": "decennie"},
+          "width": {"signal": "max(0.25, bandwidth('x'))"},
+          "y": {"scale": "y", "field": "__count"},
+          "y2": {"scale": "y", "value": 0}
+        }
+      }
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "band",
+      "domain": {"data": "data_0", "field": "decennie", "sort": true},
+      "range": [0, {"signal": "width"}],
+      "paddingInner": 0,
+      "paddingOuter": 0
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "domain": {"data": "data_0", "field": "__count"},
+      "range": [{"signal": "height"}, 0],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {
+        "data": "source_0",
+        "field": "annee",
+        "sort": {"order": "descending", "field": "key"}
+      },
+      "range": {"scheme": "category10"},
+      "interpolate": "hcl"
+    }
+  ],
+  "axes": [
+    {
+      "scale": "y",
+      "orient": "left",
+      "gridScale": "x",
+      "grid": true,
+      "tickCount": {"signal": "ceil(height/40)"},
+      "domain": false,
+      "labels": false,
+      "aria": false,
+      "maxExtent": 0,
+      "minExtent": 0,
+      "ticks": false,
+      "zindex": 0
+    },
+    {
+      "scale": "x",
+      "orient": "bottom",
+      "grid": false,
+      "title": "Decennie",
+      "labelAngle": 0,
+      "labelBaseline": "top",
+      "zindex": 1
+    },
+    {
+      "scale": "y",
+      "orient": "left",
+      "grid": false,
+      "title": "Nombre d'occurrences",
+      "labelOverlap": true,
+      "tickCount": {"signal": "ceil(height/40)"},
+      "zindex": 0
+    }
+  ],
+  "legends": [{"title": "Annee", "fill": "color", "symbolType": "square"}]
+}
+  </script>
+  <script type="text/javascript">
+    var spec = JSON.parse(document.getElementById('spec').textContent);
+    vegaEmbed('#vis', spec).then(function(result) {
+      // Le graphique est maintenant affiché dans le conteneur #vis
+    }).catch(console.error);
+  </script>
+</body>
+</html>
 
