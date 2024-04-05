@@ -9,6 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://vega.github.io/vega/vega.min.js"></script>
+    <script src="https://vega.github.io/vega-lite/vega-lite.min.js"></script>
+    <script src="https://vega.github.io/vega-embed/vega-embed.min.js"></script>
+
 </head>
 <body>
     <header>
@@ -28,18 +32,41 @@
                
 	            </div>
 	            <div class="exp-desc">
-	                 <div id="vis"></div>
-			  <script>
-			    const vegaLite = require('vega-lite');
-			
-			    const spec = require('json/nbreJournauxParAnnée.vl');
-			
-			    vegaLite.render(spec, "vis", {
-			      renderer: "svg"
-			    }).then(function(view) {
-			      // Vous pouvez ajouter du code JavaScript ici pour interagir avec votre graphique
-			    });
-			  </script>
+	                <div id="vis"></div>
+  <script type="application/json" id="spec">
+ {
+  "width": 600,
+  "height": 400,
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Le nombre de journaux par annee",
+  "data": {
+    "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv"
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "annee"},
+    "y": {
+      "aggregate": "count",
+      "field": "fichier",
+      "title": "nombre de Journaux"
+    },
+    "tooltip": [
+      {
+        "aggregate": "count",
+        "field": "nomJournal",
+        "title": "Nombre du Journaux"
+      }
+    ]
+  },
+  "config": {}
+}
+  </script>
+  <script type="text/javascript">
+    var spec = JSON.parse(document.getElementById('spec').textContent);
+    vegaEmbed('#vis', spec).then(function(result) {
+      // Le graphique est maintenant affiché dans le conteneur #vis
+    }).catch(console.error);
+  </script>
 	            </div>
             </div>
 	    <div class="exp">
