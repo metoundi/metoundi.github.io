@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Le nombre de journaux mensuels par decennie avec facets</title>
+  <script src="https://unpkg.com/vega@5.20.2/build/vega.min.js"></script>
+<script src="https://unpkg.com/vega-lite@5.0.0/build/vega-lite.min.js"></script>
+<script src="https://unpkg.com/vega-embed@6.17.0/build/vega-embed.min.js"></script>
+
+</head>
+<body>
+  <div id="vis"></div>
+  <script type='application/json' id="spec">
+  {
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
+  "data": [
+    {"name": "Nom_du_journal_store"},
+    {
+      "name": "source_0",
+      "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
+      "format": {"type": "csv"},
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "!length(data(\"Nom_du_journal_store\")) || vlSelectionTest(\"Nom_du_journal_store\", datum)"
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["nomJournal", "decennie", "annee", "mois"],
+          "ops": ["count"],
+          "fields": [null],
+          "as": ["__count"]
+        },
+        {
+          "type": "stack",
+          "groupby": ["nomJournal", "mois"],
+          "field": "__count",
+          "sort": {"field": ["decennie"], "order": ["descending"]},
+          "as": ["__count_start", "__count_end"],
+          "offset": "zero"
+        }
+      ]
+    },
+    {
+      "name": "facet_domain",
+      "source": "source_0",
+      "transform": [{"type": "aggregate", "groupby": ["mois"]}]
+    },
+    {
+      "name": "facet_domain_row",
+      "transform": [
+        {
+          "type": "sequence",
+          "start": 0,
+          "stop": {"signal": "ceil(length(data(\"facet_domain\")) / 4)"}
+        }
+      ]
+    },
+    {
+      "name": "facet_domain_column",
+      "transform": [
+        {
+          "type": "sequence",
+          "start": 0,
+          "stop": {"signal": "min(length(data(\"facet_domain\")), 4)"}
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {"name": "child_width", "value": 300},
+    {"name": "child_height", "value": 200},
+    {
+      "name": "unit",
+      "value": {},
+      "on": [
+        {"events": "pointermove", "update": "isTuple(group()) ? group() : unit"}
+      ]
+    },
+    {
+      "name": "Nom_du_journal_nomJournal",
+      "value": null,
+      "bind": {
+        "input": "select",
+        "options": [
+          "",
+          "L'Avenir Du Luxembourg",
+          "La Libre Belgique",
+          "L'Indépendance Belge",
+          "Journal De Bruxelles",
+          "Journal De Charleroi",
+          "La Meuse",
+          "Le XXe Siècle",
+          "Le Peuple",
+          "Le soir"
+        ],
+        "name": "Nom du journal"
+      }
+    },
+    {
+      "name": "Nom_du_journal",
+      "update": "vlSelectionResolve(\"Nom_du_journal_store\", \"union\", true, true)"
+    }
+  ],
+  "layout": {"padding": 20, "bounds": "full", "align": "all", "columns": 4},
+  "marks": [
+    {
+      "name": "facet-title",
+      "type": "group",
+      "role": "column-title",
+      "title": {"text": "mois", "style": "guide-title", "offset": 10}
+    },
+    {
+      "name": "row_header",
+      "type": "group",
+      "role": "row-header",
+      "from": {"data": "facet_domain_row"},
+      "encode": {"update": {"height": {"signal": "child_height"}}},
+      "axes": [
+        {
+          "scale": "y",
+          "orient": "left",
+          "grid": false,
+          "title": "Nombre de journaux",
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(child_height/40)"},
+          "zindex": 0
+        }
+      ]
+    },
+    {
+      "name": "column_footer",
+      "type": "group",
+      "role": "column-footer",
+      "from": {"data": "facet_domain_column"},
+      "encode": {"update": {"width": {"signal": "child_width"}}},
+      "axes": [
+        {
+          "scale": "x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "Nom des journaux",
+          "labelAlign": "right",
+          "labelAngle": 270,
+          "labelBaseline": "middle",
+          "zindex": 0
+        }
+      ]
+    },
+    {
+      "name": "cell",
+      "type": "group",
+      "title": {
+        "text": {
+          "signal": "isValid(parent[\"mois\"]) ? parent[\"mois\"] : \"\"+parent[\"mois\"]"
+        },
+        "style": "guide-label",
+        "frame": "group",
+        "offset": 10
+      },
+      "style": "cell",
+      "from": {
+        "facet": {"name": "facet", "data": "source_0", "groupby": ["mois"]}
+      },
+      "sort": {"field": ["datum[\"mois\"]"], "order": ["ascending"]},
+      "encode": {
+        "update": {
+          "width": {"signal": "child_width"},
+          "height": {"signal": "child_height"}
+        }
+      },
+      "signals": [
+        {
+          "name": "facet",
+          "value": {},
+          "on": [
+            {
+              "events": [{"source": "scope", "type": "pointermove"}],
+              "update": "isTuple(facet) ? facet : group(\"cell\").datum"
+            }
+          ]
+        },
+        {
+          "name": "Nom_du_journal_tuple",
+          "update": "Nom_du_journal_nomJournal !== null ? {fields: Nom_du_journal_tuple_fields, values: [Nom_du_journal_nomJournal]} : null"
+        },
+        {
+          "name": "Nom_du_journal_tuple_fields",
+          "value": [{"type": "E", "field": "nomJournal"}]
+        },
+        {
+          "name": "Nom_du_journal_modify",
+          "on": [
+            {
+              "events": {"signal": "Nom_du_journal_tuple"},
+              "update": "modify(\"Nom_du_journal_store\", Nom_du_journal_tuple, true)"
+            }
+          ]
+        }
+      ],
+      "marks": [
+        {
+          "name": "child_marks",
+          "type": "rect",
+          "style": ["bar"],
+          "interactive": true,
+          "from": {"data": "facet"},
+          "encode": {
+            "update": {
+              "fill": {"scale": "color", "field": "decennie"},
+              "tooltip": {
+                "signal": "{\"Journal\": isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"], \"Nombre de journaux\": format(datum[\"__count\"], \"\"), \"Année\": isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]}"
+              },
+              "ariaRoleDescription": {"value": "bar"},
+              "description": {
+                "signal": "\"Nom des journaux: \" + (isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"]) + \"; Nombre de journaux: \" + (format(datum[\"__count\"], \"\")) + \"; Décennie: \" + (isValid(datum[\"decennie\"]) ? datum[\"decennie\"] : \"\"+datum[\"decennie\"]) + \"; Journal: \" + (isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"]) + \"; Année: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"])"
+              },
+              "x": {"scale": "x", "field": "nomJournal"},
+              "width": {"signal": "max(0.25, bandwidth('x'))"},
+              "y": {"scale": "y", "field": "__count_end"},
+              "y2": {"scale": "y", "field": "__count_start"}
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "y",
+          "orient": "left",
+          "gridScale": "x",
+          "grid": true,
+          "tickCount": {"signal": "ceil(child_height/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "band",
+      "domain": {"data": "source_0", "field": "nomJournal", "sort": true},
+      "range": [0, {"signal": "child_width"}],
+      "paddingInner": 0.1,
+      "paddingOuter": 0.05
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "domain": {
+        "data": "source_0",
+        "fields": ["__count_start", "__count_end"]
+      },
+      "range": [{"signal": "child_height"}, 0],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "source_0", "field": "decennie", "sort": true},
+      "range": "category"
+    }
+  ],
+  "legends": [{"title": "Décennie", "fill": "color", "symbolType": "square"}]
+}
+  </script>
+  <script type="text/javascript">
+    var spec = JSON.parse(document.getElementById('spec').textContent);
+    vegaEmbed('#vis', spec).then(function(result) {
+      // Le graphique est maintenant affiché dans le conteneur #vis
+    }).catch(console.error);
+  </script>
+</body>
+</html>
