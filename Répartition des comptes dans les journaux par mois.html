@@ -22,7 +22,7 @@
     </header>
   <div id="vis"></div>
   <script type='application/json' id="spec">
-  {
+   {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "background": "white",
   "padding": 5,
@@ -288,11 +288,11 @@
         "update": {
           "fill": {"scale": "color", "field": "compte"},
           "tooltip": {
-            "signal": "{\"mois\": isValid(datum[\"mois\"]) ? datum[\"mois\"] : \"\"+datum[\"mois\"], \"Count of Records\": format(datum[\"__count\"], \"\"), \"compte\": isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"]}"
+            "signal": "{\"mois\": isValid(datum[\"mois\"]) ? datum[\"mois\"] : \"\"+datum[\"mois\"], \"nombre de compte \": format(datum[\"__count\"], \"\"), \"compte\": isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"]}"
           },
           "ariaRoleDescription": {"value": "bar"},
           "description": {
-            "signal": "\"mois: \" + (isValid(datum[\"mois\"]) ? datum[\"mois\"] : \"\"+datum[\"mois\"]) + \"; Count of Records: \" + (format(datum[\"__count\"], \"\")) + \"; compte: \" + (isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"])"
+            "signal": "\"mois: \" + (isValid(datum[\"mois\"]) ? datum[\"mois\"] : \"\"+datum[\"mois\"]) + \"; nombre de compte : \" + (format(datum[\"__count\"], \"\")) + \"; compte: \" + (isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"])"
           },
           "x": {"scale": "x", "field": "mois"},
           "width": {"signal": "max(0.25, bandwidth('x'))"},
@@ -406,7 +406,7 @@
       "scale": "y",
       "orient": "left",
       "grid": false,
-      "title": "Count of Records",
+      "title": "nombre de compte ",
       "labelOverlap": true,
       "tickCount": {"signal": "ceil(height/40)"},
       "zindex": 0
@@ -414,7 +414,6 @@
   ],
   "legends": [{"fill": "color", "symbolType": "square", "title": "compte"}]
 }
- 
   </script>
   <script type="text/javascript">
     var spec = JSON.parse(document.getElementById('spec').textContent);
