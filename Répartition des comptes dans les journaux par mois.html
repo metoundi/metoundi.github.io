@@ -23,26 +23,398 @@
   <div id="vis"></div>
   <script type='application/json' id="spec">
   {
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
   "width": 500,
   "height": 300,
-  "title": "Répartition des comptes dans les journaux par mois",
-  "data": {
-    "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv"
+  "title": {
+    "text": "Répartition des comptes dans les journaux par mois",
+    "frame": "group"
   },
-  "mark": "bar",
-  "encoding": {
-    "x": {"field": "mois", "type": "ordinal"},
-    "y": {"aggregate": "count", "type": "quantitative"},
-    "color": {"field": "compte", "type": "nominal"},
-    "tooltip": [
-      {"field": "mois", "type": "ordinal"},
-      {"aggregate": "count", "type": "quantitative"},
-      {"field": "compte", "type": "nominal"}
-    ]
-  },
-  "config": {}
+  "style": "cell",
+  "data": [
+    {"name": "mois_selection_store"},
+    {
+      "name": "source_0",
+      "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
+      "format": {"type": "csv", "delimiter": ","},
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "!length(data(\"mois_selection_store\")) || vlSelectionTest(\"mois_selection_store\", datum)"
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["mois", "compte"],
+          "ops": ["count"],
+          "fields": [null],
+          "as": ["__count"]
+        },
+        {
+          "type": "stack",
+          "groupby": ["mois"],
+          "field": "__count",
+          "sort": {"field": ["compte"], "order": ["descending"]},
+          "as": ["__count_start", "__count_end"],
+          "offset": "zero"
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "name": "unit",
+      "value": {},
+      "on": [
+        {"events": "pointermove", "update": "isTuple(group()) ? group() : unit"}
+      ]
+    },
+    {
+      "name": "mois_selection",
+      "update": "vlSelectionResolve(\"mois_selection_store\", \"union\")"
+    },
+    {
+      "name": "mois_selection_x",
+      "value": [],
+      "on": [
+        {
+          "events": {
+            "source": "scope",
+            "type": "pointerdown",
+            "filter": [
+              "!event.item || event.item.mark.name !== \"mois_selection_brush\""
+            ]
+          },
+          "update": "[x(unit), x(unit)]"
+        },
+        {
+          "events": {
+            "source": "window",
+            "type": "pointermove",
+            "consume": true,
+            "between": [
+              {
+                "source": "scope",
+                "type": "pointerdown",
+                "filter": [
+                  "!event.item || event.item.mark.name !== \"mois_selection_brush\""
+                ]
+              },
+              {"source": "window", "type": "pointerup"}
+            ]
+          },
+          "update": "[mois_selection_x[0], clamp(x(unit), 0, width)]"
+        },
+        {
+          "events": {"signal": "mois_selection_scale_trigger"},
+          "update": "[0, 0]"
+        },
+        {
+          "events": [{"source": "view", "type": "dblclick"}],
+          "update": "[0, 0]"
+        },
+        {
+          "events": {"signal": "mois_selection_translate_delta"},
+          "update": "clampRange(panLinear(mois_selection_translate_anchor.extent_x, mois_selection_translate_delta.x / span(mois_selection_translate_anchor.extent_x)), 0, width)"
+        },
+        {
+          "events": {"signal": "mois_selection_zoom_delta"},
+          "update": "clampRange(zoomLinear(mois_selection_x, mois_selection_zoom_anchor.x, mois_selection_zoom_delta), 0, width)"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_mois",
+      "on": [
+        {
+          "events": {"signal": "mois_selection_x"},
+          "update": "mois_selection_x[0] === mois_selection_x[1] ? null : invert(\"x\", mois_selection_x)"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_scale_trigger",
+      "value": {},
+      "on": [
+        {
+          "events": [{"scale": "x"}],
+          "update": "(!isArray(mois_selection_mois) || (invert(\"x\", mois_selection_x)[0] === mois_selection_mois[0] && invert(\"x\", mois_selection_x)[1] === mois_selection_mois[1])) ? mois_selection_scale_trigger : {}"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_tuple",
+      "on": [
+        {
+          "events": [{"signal": "mois_selection_mois"}],
+          "update": "mois_selection_mois ? {unit: \"\", fields: mois_selection_tuple_fields, values: [mois_selection_mois]} : null"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_tuple_fields",
+      "value": [{"field": "mois", "channel": "x", "type": "E"}]
+    },
+    {
+      "name": "mois_selection_translate_anchor",
+      "value": {},
+      "on": [
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "pointerdown",
+              "markname": "mois_selection_brush"
+            }
+          ],
+          "update": "{x: x(unit), y: y(unit), extent_x: slice(mois_selection_x)}"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_translate_delta",
+      "value": {},
+      "on": [
+        {
+          "events": [
+            {
+              "source": "window",
+              "type": "pointermove",
+              "consume": true,
+              "between": [
+                {
+                  "source": "scope",
+                  "type": "pointerdown",
+                  "markname": "mois_selection_brush"
+                },
+                {"source": "window", "type": "pointerup"}
+              ]
+            }
+          ],
+          "update": "{x: mois_selection_translate_anchor.x - x(unit), y: mois_selection_translate_anchor.y - y(unit)}"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_zoom_anchor",
+      "on": [
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "wheel",
+              "consume": true,
+              "markname": "mois_selection_brush"
+            }
+          ],
+          "update": "{x: x(unit), y: y(unit)}"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_zoom_delta",
+      "on": [
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "wheel",
+              "consume": true,
+              "markname": "mois_selection_brush"
+            }
+          ],
+          "force": true,
+          "update": "pow(1.001, event.deltaY * pow(16, event.deltaMode))"
+        }
+      ]
+    },
+    {
+      "name": "mois_selection_modify",
+      "on": [
+        {
+          "events": {"signal": "mois_selection_tuple"},
+          "update": "modify(\"mois_selection_store\", mois_selection_tuple, true)"
+        }
+      ]
+    }
+  ],
+  "marks": [
+    {
+      "name": "mois_selection_brush_bg",
+      "type": "rect",
+      "clip": true,
+      "encode": {
+        "enter": {"fill": {"value": "#333"}, "fillOpacity": {"value": 0.125}},
+        "update": {
+          "x": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "signal": "mois_selection_x[0]"
+            },
+            {"value": 0}
+          ],
+          "y": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "value": 0
+            },
+            {"value": 0}
+          ],
+          "x2": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "signal": "mois_selection_x[1]"
+            },
+            {"value": 0}
+          ],
+          "y2": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "field": {"group": "height"}
+            },
+            {"value": 0}
+          ]
+        }
+      }
+    },
+    {
+      "name": "marks",
+      "type": "rect",
+      "style": ["bar"],
+      "interactive": true,
+      "from": {"data": "source_0"},
+      "encode": {
+        "update": {
+          "fill": {"scale": "color", "field": "compte"},
+          "tooltip": {
+            "signal": "{\"mois\": isValid(datum[\"mois\"]) ? datum[\"mois\"] : \"\"+datum[\"mois\"], \"Count of Records\": format(datum[\"__count\"], \"\"), \"compte\": isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"]}"
+          },
+          "ariaRoleDescription": {"value": "bar"},
+          "description": {
+            "signal": "\"mois: \" + (isValid(datum[\"mois\"]) ? datum[\"mois\"] : \"\"+datum[\"mois\"]) + \"; Count of Records: \" + (format(datum[\"__count\"], \"\")) + \"; compte: \" + (isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"])"
+          },
+          "x": {"scale": "x", "field": "mois"},
+          "width": {"signal": "max(0.25, bandwidth('x'))"},
+          "y": {"scale": "y", "field": "__count_end"},
+          "y2": {"scale": "y", "field": "__count_start"}
+        }
+      }
+    },
+    {
+      "name": "mois_selection_brush",
+      "type": "rect",
+      "clip": true,
+      "encode": {
+        "enter": {
+          "cursor": {"value": "move"},
+          "fill": {"value": "transparent"}
+        },
+        "update": {
+          "x": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "signal": "mois_selection_x[0]"
+            },
+            {"value": 0}
+          ],
+          "y": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "value": 0
+            },
+            {"value": 0}
+          ],
+          "x2": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "signal": "mois_selection_x[1]"
+            },
+            {"value": 0}
+          ],
+          "y2": [
+            {
+              "test": "data(\"mois_selection_store\").length && data(\"mois_selection_store\")[0].unit === \"\"",
+              "field": {"group": "height"}
+            },
+            {"value": 0}
+          ],
+          "stroke": [
+            {
+              "test": "mois_selection_x[0] !== mois_selection_x[1]",
+              "value": "white"
+            },
+            {"value": null}
+          ]
+        }
+      }
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "band",
+      "domain": {"data": "source_0", "field": "mois", "sort": true},
+      "range": [0, {"signal": "width"}],
+      "paddingInner": 0.1,
+      "paddingOuter": 0.05
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "domain": {
+        "data": "source_0",
+        "fields": ["__count_start", "__count_end"]
+      },
+      "range": [{"signal": "height"}, 0],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "source_0", "field": "compte", "sort": true},
+      "range": "category"
+    }
+  ],
+  "axes": [
+    {
+      "scale": "y",
+      "orient": "left",
+      "gridScale": "x",
+      "grid": true,
+      "tickCount": {"signal": "ceil(height/40)"},
+      "domain": false,
+      "labels": false,
+      "aria": false,
+      "maxExtent": 0,
+      "minExtent": 0,
+      "ticks": false,
+      "zindex": 0
+    },
+    {
+      "scale": "x",
+      "orient": "bottom",
+      "grid": false,
+      "title": "mois",
+      "labelAlign": "right",
+      "labelAngle": 270,
+      "labelBaseline": "middle",
+      "zindex": 0
+    },
+    {
+      "scale": "y",
+      "orient": "left",
+      "grid": false,
+      "title": "Count of Records",
+      "labelOverlap": true,
+      "tickCount": {"signal": "ceil(height/40)"},
+      "zindex": 0
+    }
+  ],
+  "legends": [{"fill": "color", "symbolType": "square", "title": "compte"}]
 }
+ 
   </script>
   <script type="text/javascript">
     var spec = JSON.parse(document.getElementById('spec').textContent);
