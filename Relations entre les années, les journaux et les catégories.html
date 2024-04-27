@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Répartition des comptes dans les journaux par mois.</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/vega@5.20.2/build/vega.min.js"></script>
+    <script src="https://unpkg.com/vega-lite@5.0.0/build/vega-lite.min.js"></script>
+    <script src="https://unpkg.com/vega-embed@6.17.0/build/vega-embed.min.js"></script>
+
+</head>
+<body>
+     <header>
+          <a href="index.html">Accueil</a>
+
+         <p> <a href="VegaNPC.html">Page Vega</a> </p>
+	        <h1 style="text-align:center">Découvrons et explorons l'usage novateur de Vega dans le projet NumaPress CAMILLE (NPC) pour analyser les archives de presse belge.</h1>       
+    </header>
+  <div id="vis"></div>
+  <script type='application/json' id="spec">
+ {
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
+  "width": 600,
+  "height": 400,
+  "title": {
+    "text": "Réseau de liens : Relations entre les années, les journaux et les catégories",
+    "frame": "group"
+  },
+  "style": "cell",
+  "data": [
+    {
+      "name": "source_0",
+      "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
+      "format": {"type": "csv"},
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["annee", "nomJournal", "categorie"],
+          "ops": ["count"],
+          "fields": [null],
+          "as": ["__count"]
+        }
+      ]
+    }
+  ],
+  "marks": [
+    {
+      "name": "marks",
+      "type": "symbol",
+      "style": ["point"],
+      "from": {"data": "source_0"},
+      "encode": {
+        "update": {
+          "fill": {"scale": "color", "field": "categorie"},
+          "tooltip": {
+            "signal": "{\"Année\": isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"], \"Journal\": isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"], \"Catégorie\": isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"], \"Nombre\": format(datum[\"__count\"], \"\")}"
+          },
+          "ariaRoleDescription": {"value": "point"},
+          "description": {
+            "signal": "\"annee: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]) + \"; nomJournal: \" + (isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"]) + \"; categorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]) + \"; Nombre d'occurrences: \" + (format(datum[\"__count\"], \"\")) + \"; Année: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]) + \"; Journal: \" + (isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"]) + \"; Catégorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]) + \"; Nombre: \" + (format(datum[\"__count\"], \"\"))"
+          },
+          "x": {"scale": "x", "field": "annee"},
+          "y": {"scale": "y", "field": "nomJournal"},
+          "size": {"scale": "size", "field": "__count"}
+        }
+      }
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "point",
+      "domain": {"data": "source_0", "field": "annee", "sort": true},
+      "range": [0, {"signal": "width"}],
+      "padding": 0.5
+    },
+    {
+      "name": "y",
+      "type": "point",
+      "domain": {"data": "source_0", "field": "nomJournal", "sort": true},
+      "range": [0, {"signal": "height"}],
+      "padding": 0.5
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "source_0", "field": "categorie", "sort": true},
+      "range": "category"
+    },
+    {
+      "name": "size",
+      "type": "linear",
+      "domain": {"data": "source_0", "field": "__count"},
+      "range": [0, 361],
+      "zero": true
+    }
+  ],
+  "axes": [
+    {
+      "scale": "x",
+      "orient": "bottom",
+      "grid": false,
+      "title": "Année",
+      "labelAlign": "right",
+      "labelAngle": 270,
+      "labelBaseline": "middle",
+      "zindex": 0
+    },
+    {
+      "scale": "y",
+      "orient": "left",
+      "grid": false,
+      "title": "Journal",
+      "zindex": 0
+    }
+  ],
+  "legends": [
+    {"fill": "color", "symbolType": "circle", "title": "categorie"},
+    {
+      "title": "Nombre d'occurrences",
+      "size": "size",
+      "symbolType": "circle",
+      "encode": {
+        "symbols": {
+          "update": {
+            "fill": {"value": "black"},
+            "fillOpacity": {"value": 1},
+            "stroke": {"value": "transparent"}
+          }
+        }
+      }
+    }
+  ],
+  "config": {"style": {"cell": {"stroke": ""}}}
+}
+  </script>
+  <script type="text/javascript">
+    var spec = JSON.parse(document.getElementById('spec').textContent);
+    vegaEmbed('#vis', spec).then(function(result) {
+      // Le graphique est maintenant affiché dans le conteneur #vis
+    }).catch(console.error);
+  </script>
+</body>
+</html>
