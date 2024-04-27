@@ -23,105 +23,32 @@
   <div id="vis"></div>
   <script type='application/json' id="spec">
 {
-  "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "background": "white",
-  "padding": 5,
-  "width": 800,
-  "height": 400,
-  "title": {
-    "text": "Tendance de l'activité des journaux par mois et année",
-    "frame": "group"
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 400,
+  "height": 300,
+  "title": "Tendance de l'activité des journaux par mois et année",
+  "data": {
+    "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv"
   },
-  "style": "cell",
-  "data": [
-    {
-      "name": "source_0",
-      "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
-      "format": {"type": "csv"},
-      "transform": [
-        {
-          "type": "aggregate",
-          "groupby": ["mois", "annee"],
-          "ops": ["count"],
-          "fields": [null],
-          "as": ["__count"]
-        }
-      ]
-    }
-  ],
-  "marks": [
-    {
-      "name": "marks",
-      "type": "rect",
-      "style": ["rect"],
-      "from": {"data": "source_0"},
-      "encode": {
-        "update": {
-          "fill": {"scale": "color", "field": "__count"},
-          "tooltip": {
-            "signal": "{\"Nombre du Journaux\": format(datum[\"__count\"], \"\")}"
-          },
-          "description": {
-            "signal": "\"mois: \" + (isValid(datum[\"mois\"]) ? datum[\"mois\"] : \"\"+datum[\"mois\"]) + \"; annee: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]) + \"; Count of Records: \" + (format(datum[\"__count\"], \"\")) + \"; Nombre du Journaux: \" + (format(datum[\"__count\"], \"\"))"
-          },
-          "x": {"scale": "x", "field": "mois"},
-          "width": {"signal": "max(0.25, bandwidth('x'))"},
-          "y": {"scale": "y", "field": "annee"},
-          "height": {"signal": "max(0.25, bandwidth('y'))"}
-        }
+  "mark": "rect",
+  "encoding": {
+    "x": {"field": "mois", "type": "ordinal"},
+    "y": {"field": "annee", "type": "ordinal"},
+    "color": {"aggregate": "count", "type": "quantitative"},
+    "tooltip": [
+      {
+        "aggregate": "count",
+        "field": "nomJournal",
+        "title": "Nombre du Journaux"
       }
-    }
-  ],
-  "scales": [
+    ]
+  },
+  "config": {},
+  "transform": [{"filter": {"param": "annee_selection", "empty": true}}],
+  "params": [
     {
-      "name": "x",
-      "type": "band",
-      "domain": {"data": "source_0", "field": "mois", "sort": true},
-      "range": [0, {"signal": "width"}],
-      "paddingInner": 0,
-      "paddingOuter": 0
-    },
-    {
-      "name": "y",
-      "type": "band",
-      "domain": {"data": "source_0", "field": "annee", "sort": true},
-      "range": [0, {"signal": "height"}],
-      "paddingInner": 0,
-      "paddingOuter": 0
-    },
-    {
-      "name": "color",
-      "type": "linear",
-      "domain": {"data": "source_0", "field": "__count"},
-      "range": "heatmap",
-      "interpolate": "hcl",
-      "zero": false
-    }
-  ],
-  "axes": [
-    {
-      "scale": "x",
-      "orient": "bottom",
-      "grid": false,
-      "title": "mois",
-      "labelAlign": "right",
-      "labelAngle": 270,
-      "labelBaseline": "middle",
-      "zindex": 1
-    },
-    {
-      "scale": "y",
-      "orient": "left",
-      "grid": false,
-      "title": "annee",
-      "zindex": 1
-    }
-  ],
-  "legends": [
-    {
-      "fill": "color",
-      "gradientLength": {"signal": "clamp(height, 64, 200)"},
-      "title": "Count of Records"
+      "name": "annee_selection",
+      "select": {"type": "interval", "encodings": ["y"]}
     }
   ]
 }
