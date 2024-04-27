@@ -32,9 +32,13 @@
   },
   "mark": "rect",
   "encoding": {
-    "x": {"field": "mois", "type": "ordinal"},
-    "y": {"field": "annee", "type": "ordinal"},
-    "color": {"aggregate": "count", "type": "quantitative"},
+    "x": {"field": "mois", "type": "ordinal", "title": "MOIS"},
+    "y": {"field": "annee", "type": "ordinal", "title": "ANNEE"},
+    "color": {
+      "aggregate": "count",
+      "type": "quantitative",
+      "title": "Nombre de journaux"
+    },
     "tooltip": [
       {
         "aggregate": "count",
@@ -52,6 +56,7 @@
     }
   ]
 }
+
   </script>
   <script type="text/javascript">
     var spec = JSON.parse(document.getElementById('spec').textContent);
