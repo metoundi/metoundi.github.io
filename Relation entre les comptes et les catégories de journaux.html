@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tendance de l'activité des journaux par mois et année.</title>
+    <title>Relation entre les comptes et les catégories de journaux</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" href="style.css">
@@ -27,7 +27,7 @@
   "background": "white",
   "padding": 5,
   "width": 300,
-  "height": 300,
+  "height": 400,
   "title": {
     "text": "Relation entre les comptes et les catégories de journaux",
     "frame": "group"
@@ -37,7 +37,16 @@
     {
       "name": "source_0",
       "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
-      "format": {"type": "csv"}
+      "format": {"type": "csv"},
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["compte", "categorie"],
+          "ops": ["count"],
+          "fields": [null],
+          "as": ["__count"]
+        }
+      ]
     }
   ],
   "marks": [
@@ -48,18 +57,18 @@
       "from": {"data": "source_0"},
       "encode": {
         "update": {
-          "opacity": {"value": 0.7},
-          "tooltip": {
-            "signal": "{\"compte\": isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"], \"categorie\": isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]}"
-          },
           "fill": {"value": "transparent"},
           "stroke": {"value": "#4c78a8"},
+          "tooltip": {
+            "signal": "{\"Catégorie\": isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"], \"Compte\": isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"], \"Nombre d'articles\": format(datum[\"__count\"], \"\")}"
+          },
           "ariaRoleDescription": {"value": "point"},
           "description": {
-            "signal": "\"compte: \" + (isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"]) + \"; categorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"])"
+            "signal": "\"compte: \" + (isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"]) + \"; categorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]) + \"; Nombre d'articles: \" + (format(datum[\"__count\"], \"\")) + \"; Catégorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]) + \"; Compte: \" + (isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"])"
           },
           "x": {"scale": "x", "field": "compte"},
-          "y": {"scale": "y", "field": "categorie"}
+          "y": {"scale": "y", "field": "categorie"},
+          "size": {"scale": "size", "field": "__count"}
         }
       }
     }
@@ -78,6 +87,13 @@
       "domain": {"data": "source_0", "field": "categorie", "sort": true},
       "range": [0, {"signal": "height"}],
       "padding": 0.5
+    },
+    {
+      "name": "size",
+      "type": "linear",
+      "domain": {"data": "source_0", "field": "__count"},
+      "range": [0, 361],
+      "zero": true
     }
   ],
   "axes": [
@@ -85,7 +101,7 @@
       "scale": "x",
       "orient": "bottom",
       "grid": false,
-      "title": "compte",
+      "title": "Compte",
       "labelAlign": "right",
       "labelAngle": 270,
       "labelBaseline": "middle",
@@ -95,8 +111,23 @@
       "scale": "y",
       "orient": "left",
       "grid": false,
-      "title": "categorie",
+      "title": "Catégorie",
       "zindex": 0
+    }
+  ],
+  "legends": [
+    {
+      "title": "Nombre d'articles",
+      "size": "size",
+      "symbolType": "circle",
+      "encode": {
+        "symbols": {
+          "update": {
+            "fill": {"value": "transparent"},
+            "stroke": {"value": "#4c78a8"}
+          }
+        }
+      }
     }
   ]
 }
