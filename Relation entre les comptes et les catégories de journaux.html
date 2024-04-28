@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tendance de l'activité des journaux par mois et année.</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/vega@5.20.2/build/vega.min.js"></script>
+    <script src="https://unpkg.com/vega-lite@5.0.0/build/vega-lite.min.js"></script>
+    <script src="https://unpkg.com/vega-embed@6.17.0/build/vega-embed.min.js"></script>
+
+</head>
+<body>
+     <header>
+          <a href="index.html">Accueil</a>
+
+         <p> <a href="VegaNPC.html">Page Vega</a> </p>
+	        <h1 style="text-align:center">Découvrons et explorons l'usage novateur de Vega dans le projet NumaPress CAMILLE (NPC) pour analyser les archives de presse belge.</h1>       
+    </header>
+  <div id="vis"></div>
+  <script type='application/json' id="spec">
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
+  "width": 300,
+  "height": 300,
+  "title": {
+    "text": "Relation entre les comptes et les catégories de journaux",
+    "frame": "group"
+  },
+  "style": "cell",
+  "data": [
+    {
+      "name": "source_0",
+      "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
+      "format": {"type": "csv"}
+    }
+  ],
+  "marks": [
+    {
+      "name": "marks",
+      "type": "symbol",
+      "style": ["point"],
+      "from": {"data": "source_0"},
+      "encode": {
+        "update": {
+          "opacity": {"value": 0.7},
+          "tooltip": {
+            "signal": "{\"compte\": isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"], \"categorie\": isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]}"
+          },
+          "fill": {"value": "transparent"},
+          "stroke": {"value": "#4c78a8"},
+          "ariaRoleDescription": {"value": "point"},
+          "description": {
+            "signal": "\"compte: \" + (isValid(datum[\"compte\"]) ? datum[\"compte\"] : \"\"+datum[\"compte\"]) + \"; categorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"])"
+          },
+          "x": {"scale": "x", "field": "compte"},
+          "y": {"scale": "y", "field": "categorie"}
+        }
+      }
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "point",
+      "domain": {"data": "source_0", "field": "compte", "sort": true},
+      "range": [0, {"signal": "width"}],
+      "padding": 0.5
+    },
+    {
+      "name": "y",
+      "type": "point",
+      "domain": {"data": "source_0", "field": "categorie", "sort": true},
+      "range": [0, {"signal": "height"}],
+      "padding": 0.5
+    }
+  ],
+  "axes": [
+    {
+      "scale": "x",
+      "orient": "bottom",
+      "grid": false,
+      "title": "compte",
+      "labelAlign": "right",
+      "labelAngle": 270,
+      "labelBaseline": "middle",
+      "zindex": 0
+    },
+    {
+      "scale": "y",
+      "orient": "left",
+      "grid": false,
+      "title": "categorie",
+      "zindex": 0
+    }
+  ]
+}
+  </script>
+  <script type="text/javascript">
+    var spec = JSON.parse(document.getElementById('spec').textContent);
+    vegaEmbed('#vis', spec).then(function(result) {
+      // Le graphique est maintenant affiché dans le conteneur #vis
+    }).catch(console.error);
+  </script>
+</body>
+</html>
