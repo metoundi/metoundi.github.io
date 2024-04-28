@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Répartition des journaux par catégorie et par année</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/vega@5.20.2/build/vega.min.js"></script>
+    <script src="https://unpkg.com/vega-lite@5.0.0/build/vega-lite.min.js"></script>
+    <script src="https://unpkg.com/vega-embed@6.17.0/build/vega-embed.min.js"></script>
+
+</head>
+<body>
+     <header>
+          <a href="index.html">Accueil</a>
+
+         <p> <a href="VegaNPC.html">Page Vega</a> </p>
+	        <h1 style="text-align:center">Découvrons et explorons l'usage novateur de Vega dans le projet NumaPress CAMILLE (NPC) pour analyser les archives de presse belge.</h1>       
+    </header>
+  <div id="vis"></div>
+  <script type='application/json' id="spec">
+  {
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
+  "width": 600,
+  "height": 400,
+  "title": {
+    "text": "Répartition des journaux par catégorie et par année",
+    "frame": "group"
+  },
+  "style": "cell",
+  "data": [
+    {
+      "name": "source_0",
+      "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
+      "format": {"type": "csv"},
+      "transform": [
+        {"type": "filter", "expr": "datum.categorie != null"},
+        {
+          "type": "aggregate",
+          "groupby": ["annee", "categorie"],
+          "ops": ["count"],
+          "fields": [null],
+          "as": ["count"]
+        },
+        {
+          "type": "stack",
+          "groupby": ["annee"],
+          "field": "count",
+          "sort": {"field": ["categorie"], "order": ["descending"]},
+          "as": ["count_start", "count_end"],
+          "offset": "zero"
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum[\"count\"]) && isFinite(+datum[\"count\"])"
+        }
+      ]
+    }
+  ],
+  "marks": [
+    {
+      "name": "marks",
+      "type": "rect",
+      "style": ["bar"],
+      "from": {"data": "source_0"},
+      "encode": {
+        "update": {
+          "fill": {"scale": "color", "field": "categorie"},
+          "tooltip": {
+            "signal": "{\"Année\": isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"], \"Catégorie\": isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"], \"Nombre d'articles\": format(datum[\"count\"], \"\")}"
+          },
+          "ariaRoleDescription": {"value": "bar"},
+          "description": {
+            "signal": "\"annee: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]) + \"; count: \" + (format(datum[\"count\"], \"\")) + \"; categorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]) + \"; Année: \" + (isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]) + \"; Catégorie: \" + (isValid(datum[\"categorie\"]) ? datum[\"categorie\"] : \"\"+datum[\"categorie\"]) + \"; Nombre d'articles: \" + (format(datum[\"count\"], \"\"))"
+          },
+          "x": {"scale": "x", "field": "annee"},
+          "width": {"signal": "max(0.25, bandwidth('x'))"},
+          "y": {"scale": "y", "field": "count_end"},
+          "y2": {"scale": "y", "field": "count_start"}
+        }
+      }
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "band",
+      "domain": {"data": "source_0", "field": "annee", "sort": true},
+      "range": [0, {"signal": "width"}],
+      "paddingInner": 0.1,
+      "paddingOuter": 0.05
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "domain": {"data": "source_0", "fields": ["count_start", "count_end"]},
+      "range": [{"signal": "height"}, 0],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "source_0", "field": "categorie", "sort": true},
+      "range": {"scheme": "category10"}
+    }
+  ],
+  "axes": [
+    {
+      "scale": "y",
+      "orient": "left",
+      "gridScale": "x",
+      "grid": true,
+      "tickCount": {"signal": "ceil(height/40)"},
+      "domain": false,
+      "labels": false,
+      "aria": false,
+      "maxExtent": 0,
+      "minExtent": 0,
+      "ticks": false,
+      "zindex": 0
+    },
+    {
+      "scale": "x",
+      "orient": "bottom",
+      "grid": false,
+      "title": "Année",
+      "labelAlign": "right",
+      "labelAngle": 270,
+      "labelBaseline": "middle",
+      "zindex": 0
+    },
+    {
+      "scale": "y",
+      "orient": "left",
+      "grid": false,
+      "title": "Nombre de journaux",
+      "labelOverlap": true,
+      "tickCount": {"signal": "ceil(height/40)"},
+      "zindex": 0
+    }
+  ],
+  "legends": [{"fill": "color", "symbolType": "square", "title": "categorie"}]
+}
+  </script>
+  <script type="text/javascript">
+    var spec = JSON.parse(document.getElementById('spec').textContent);
+    vegaEmbed('#vis', spec).then(function(result) {
+      // Le graphique est maintenant affiché dans le conteneur #vis
+    }).catch(console.error);
+  </script>
+</body>
+</html>
