@@ -21,16 +21,20 @@
     </header>
   <div id="vis"></div>
   <script type='application/json' id="spec">
-  {
+ {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "background": "white",
   "padding": 5,
+  "title": {
+    "text": "Le nombre de journaux mensuels par decennie avec facets",
+    "frame": "group"
+  },
   "data": [
     {"name": "Nom_du_journal_store"},
     {
       "name": "source_0",
       "url": "https://raw.githubusercontent.com/metoundi/vega_datasets/master/vega_datasets/_data/journalisme.csv",
-      "format": {"type": "csv"},
+      "format": {"type": "csv", "delimiter": ","},
       "transform": [
         {
           "type": "filter",
