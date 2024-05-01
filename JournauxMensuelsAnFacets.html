@@ -21,7 +21,7 @@
     </header>
   <div id="vis"></div>
   <script type='application/json' id="spec">
- {
+{
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "background": "white",
   "padding": 5,
@@ -225,7 +225,7 @@
             "update": {
               "fill": {"scale": "color", "field": "decennie"},
               "tooltip": {
-                "signal": "{\"Journal\": isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"], \"Nombre de journaux\": format(datum[\"__count\"], \"\"), \"Année\": isValid(datum[\"annee\"]) ? datum[\"annee\"] : \"\"+datum[\"annee\"]}"
+                "signal": "{\"Journal\": isValid(datum[\"nomJournal\"]) ? datum[\"nomJournal\"] : \"\"+datum[\"nomJournal\"], \"Nombre de journaux\": format(datum[\"__count\"], \"\"), \"Décennie\": isValid(datum[\"decennie\"]) ? datum[\"decennie\"] : \"\"+datum[\"decennie\"]}"
               },
               "ariaRoleDescription": {"value": "bar"},
               "description": {
